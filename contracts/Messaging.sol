@@ -8,12 +8,17 @@ contract Messaging {
     string content;
     address sender;
     address receiver;
+    bool encrypted;
   }
 
   mapping(address => mapping(address => Message[])) public inboxes;
 
-  function send(address receiver, string calldata content) public {
-    Message memory message = Message(content, msg.sender, receiver);
+  function send(
+    address receiver,
+    string calldata content,
+    bool encrypted
+  ) public {
+    Message memory message = Message(content, msg.sender, receiver, encrypted);
     inboxes[receiver][msg.sender].push(message);
   }
 
