@@ -25,7 +25,12 @@ describe("Messaging", function () {
   it("Should send a message", async function () {
     // wait until the transaction is mined
 
-    const tx = await messaging.send(addr2.address, "Hey what's up!");
+    const tx = await messaging
+      .connect(addr1)
+      .send(addr2.address, "Hey what's up!");
+    await tx.wait();
+
+    console.log(await messaging.inboxes(addr2.address, addr1.address, 0));
 
     // wait until the transaction is mined
     await tx.wait();
