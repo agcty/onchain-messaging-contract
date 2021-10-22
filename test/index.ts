@@ -1,19 +1,33 @@
+import { Contract, ContractFactory } from "@ethersproject/contracts";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+let Messaging: ContractFactory;
+let messaging: Contract;
+let owner: SignerWithAddress;
+let addr1: SignerWithAddress;
+let addr2: SignerWithAddress;
+let addrs: SignerWithAddress[];
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+beforeEach(async function () {
+  [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+  console.log("test");
+  Messaging = await ethers.getContractFactory("Messaging");
+  messaging = await Messaging.deploy();
+  await messaging.deployed();
+
+  console.log("is deployed");
+});
+
+describe("Messaging", function () {
+  it("Should send a message", async function () {
+    // wait until the transaction is mined
+
+    const tx = await messaging.send(addr2.address, "Hey what's up!");
 
     // wait until the transaction is mined
-    await setGreetingTx.wait();
-
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    await tx.wait();
   });
 });
