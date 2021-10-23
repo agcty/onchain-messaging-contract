@@ -36,6 +36,7 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@ethersproject/contracts": "^5.5.0"
+    "@ethersproject/contracts": "^5.5.0",
+    "@openzeppelin/contracts": "^4.3.2"
   }
 }

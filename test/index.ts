@@ -24,10 +24,11 @@ describe("Messaging", function () {
 
     const tx = await messaging
       .connect(addr1)
-      .send(addr2.address, "Hey what's up!", true);
+      // receiver, content, inboxName
+      .send(addr2.address, "Hey what's up!", "default");
     await tx.wait();
 
-    const message = await messaging.inboxes(addr2.address, addr1.address, 0);
+    const message = await messaging.messages(addr2.address, addr1.address, 0);
     const content = message.content;
 
     console.log(content);
@@ -39,11 +40,24 @@ describe("Messaging", function () {
 });
 
 describe("Messaging", function () {
+  it("Sending to non-existing inbox throws", async function () {
+    // wait until the transaction is mined
+
+    await expect(
+      messaging
+        .connect(addr1)
+        // receiver, content, inboxName
+        .send(addr2.address, "Hey what's up!", "willThrow")
+    ).to.be.revertedWith("Inbox does not exist");
+  });
+});
+
+describe("Messaging", function () {
   it("Sending a message emits an event", async function () {
     await expect(
-      messaging.connect(addr1).send(addr2.address, "Hey what's up!", true)
+      messaging.connect(addr1).send(addr2.address, "Hey what's up!", "default")
     )
       .to.emit(messaging, "Send")
-      .withArgs(addr1.address, addr2.address);
+      .withArgs(addr1.address, addr2.address, "Hey what's up!");
   });
 });
