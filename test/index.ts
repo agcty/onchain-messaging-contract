@@ -13,16 +13,13 @@ let addrs: SignerWithAddress[];
 beforeEach(async function () {
   [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-  console.log("test");
   Messaging = await ethers.getContractFactory("Messaging");
   messaging = await Messaging.deploy();
   await messaging.deployed();
-
-  console.log("is deployed");
 });
 
 describe("Messaging", function () {
-  it("Should send a message", async function () {
+  it("Sending a message stores it in the correct place", async function () {
     // wait until the transaction is mined
 
     const tx = await messaging
@@ -30,9 +27,23 @@ describe("Messaging", function () {
       .send(addr2.address, "Hey what's up!", true);
     await tx.wait();
 
-    console.log(await messaging.inboxes(addr2.address, addr1.address, 0));
+    const message = await messaging.inboxes(addr2.address, addr1.address, 0);
+    const content = message.content;
 
-    // wait until the transaction is mined
+    console.log(content);
+
+    expect(content).to.be.equal("Hey what's up!");
+
     await tx.wait();
+  });
+});
+
+describe("Messaging", function () {
+  it("Sending a message emits an event", async function () {
+    await expect(
+      messaging.connect(addr1).send(addr2.address, "Hey what's up!", true)
+    )
+      .to.emit(messaging, "Send")
+      .withArgs(addr1.address, addr2.address);
   });
 });
