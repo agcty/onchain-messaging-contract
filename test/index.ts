@@ -82,3 +82,53 @@ describe("Messaging", function () {
     expect(inbox.description).to.be.equal("This is a very simple test inbox");
   });
 });
+
+describe("Messaging", function () {
+  it("Adding an Inbox emits an event", async function () {
+    await expect(
+      messaging
+        .connect(addr1)
+        // receiver, content, inboxName
+        .addInbox("test", "This is a very simple test inbox", {
+          nftContract: "0xfd37f4625ca5816157d55a5b3f7dd8dd5f8a0c2f",
+          count: 2,
+        })
+    ).to.emit(messaging, "InboxAdded");
+    // .withArgs(
+    //   addr1.address,
+    //   "test",
+    //   "This is a very simple test inbox",
+    //   "Hey what's up!"
+    // );
+  });
+});
+
+describe("Messaging", function () {
+  it("Sending a message to an inbox requires an NFT", async function () {
+    // create nft
+    const NFT = await ethers.getContractFactory("TestNft");
+    const nft = await NFT.deploy();
+    await nft.deployed();
+
+    const mintTx = await nft.connect(owner).safeMint(addr1.address);
+    await mintTx.wait();
+    expect(await nft.balanceOf(addr1.address)).to.be.equal(1);
+
+    // add inbox with nft requirement - address2 creates inbox
+    const inboxTx = await messaging
+      .connect(addr2)
+      // receiver, content, inboxName
+      .addInbox("nft", "This is a very simple test inbox", {
+        nftContract: nft.address,
+        count: 1,
+      });
+    await inboxTx.wait();
+
+    // send message from address1 to nft inbox of addres2
+    const messageTx = await messaging
+      .connect(addr1)
+      .send(addr2.address, "Hey what's up!", "nft");
+
+    await messageTx.wait();
+  });
+});

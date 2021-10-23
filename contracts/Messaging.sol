@@ -30,6 +30,13 @@ contract Messaging {
     string indexed content
   );
 
+  event InboxAdded(
+    address indexed owner,
+    string indexed name,
+    string indexed description,
+    Condition condition
+  );
+
   // flat mapping for inboxes and messages, easier than a super nested mapping
   mapping(address => mapping(address => Message[])) public messages;
   mapping(address => mapping(string => Inbox)) public inboxes;
@@ -42,6 +49,8 @@ contract Messaging {
     // add additional exist field for easier checking if an inbox exists
     Inbox memory inbox = Inbox(name, description, condition, true);
     inboxes[msg.sender][name] = inbox;
+
+    emit InboxAdded(msg.sender, name, description, condition);
   }
 
   // inspired by https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity
