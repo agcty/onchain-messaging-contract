@@ -61,3 +61,24 @@ describe("Messaging", function () {
       .withArgs(addr1.address, addr2.address, "Hey what's up!");
   });
 });
+
+describe("Messaging", function () {
+  it("Calling addInbox adds a new Inbox", async function () {
+    // wait until the transaction is mined
+
+    const tx = await messaging
+      .connect(addr1)
+      // receiver, content, inboxName
+      .addInbox("test", "This is a very simple test inbox", {
+        nftContract: "0xfd37f4625ca5816157d55a5b3f7dd8dd5f8a0c2f",
+        count: 2,
+      });
+    await tx.wait();
+
+    const inbox = await messaging.inboxes(addr1.address, "test");
+
+    expect(inbox.exists).to.be.equal(true);
+    expect(inbox.name).to.be.equal("test");
+    expect(inbox.description).to.be.equal("This is a very simple test inbox");
+  });
+});
