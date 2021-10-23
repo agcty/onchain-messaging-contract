@@ -27,7 +27,8 @@ contract Messaging {
   event Send(
     address indexed _from,
     address indexed _to,
-    string indexed content
+    string indexed content,
+    string inboxName
   );
 
   event InboxAdded(
@@ -94,6 +95,6 @@ contract Messaging {
     messages[receiver][msg.sender].push(message);
 
     // emit event for graph
-    emit Send(msg.sender, receiver, content);
+    emit Send(msg.sender, receiver, content, inboxName);
   }
 }

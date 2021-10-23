@@ -58,7 +58,7 @@ describe("Messaging", function () {
       messaging.connect(addr1).send(addr2.address, "Hey what's up!", "default")
     )
       .to.emit(messaging, "Send")
-      .withArgs(addr1.address, addr2.address, "Hey what's up!");
+      .withArgs(addr1.address, addr2.address, "Hey what's up!", "default");
   });
 });
 
@@ -125,10 +125,10 @@ describe("Messaging", function () {
     await inboxTx.wait();
 
     // send message from address1 to nft inbox of addres2
-    const messageTx = await messaging
-      .connect(addr1)
-      .send(addr2.address, "Hey what's up!", "nft");
-
-    await messageTx.wait();
+    await expect(
+      messaging.connect(addr1).send(addr2.address, "Hey what's up!", "nft")
+    )
+      .to.emit(messaging, "Send")
+      .withArgs(addr1.address, addr2.address, "Hey what's up!", "nft");
   });
 });
