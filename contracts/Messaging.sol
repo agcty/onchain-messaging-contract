@@ -23,8 +23,4 @@ contract Messaging {
 
     emit Send(msg.sender, receiver);
   }
-
-  // constructor(string memory _greeting) {
-  //   console.log("Deploying a Greeter with greeting:", _greeting);
-  // }
 }
