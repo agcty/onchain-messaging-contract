@@ -16,6 +16,18 @@ beforeEach(async function () {
   Messaging = await ethers.getContractFactory("Messaging");
   messaging = await Messaging.deploy();
   await messaging.deployed();
+
+  const tx = await messaging
+    .connect(addr1)
+    // receiver, content, inboxName
+    .addPublicKey("test");
+  await tx.wait();
+
+  const tx2 = await messaging
+    .connect(addr2)
+    // receiver, content, inboxName
+    .addPublicKey("test");
+  await tx2.wait();
 });
 
 describe("Messaging", function () {
@@ -25,7 +37,7 @@ describe("Messaging", function () {
     const tx = await messaging
       .connect(addr1)
       // receiver, content, inboxName
-      .send(addr2.address, "Hey what's up!", "default");
+      .send(addr2.address, "Hey what's up!", "default", true);
     await tx.wait();
 
     const message = await messaging.messages(addr2.address, addr1.address, 0);
@@ -47,7 +59,7 @@ describe("Messaging", function () {
       messaging
         .connect(addr1)
         // receiver, content, inboxName
-        .send(addr2.address, "Hey what's up!", "willThrow")
+        .send(addr2.address, "Hey what's up!", "willThrow", true)
     ).to.be.revertedWith("Inbox does not exist");
   });
 });
@@ -55,10 +67,18 @@ describe("Messaging", function () {
 describe("Messaging", function () {
   it("Sending a message emits an event", async function () {
     await expect(
-      messaging.connect(addr1).send(addr2.address, "Hey what's up!", "default")
+      messaging
+        .connect(addr1)
+        .send(addr2.address, "Hey what's up!", "default", true)
     )
       .to.emit(messaging, "Send")
-      .withArgs(addr1.address, addr2.address, "Hey what's up!", "default");
+      .withArgs(
+        addr1.address,
+        addr2.address,
+        "Hey what's up!",
+        "default",
+        true
+      );
   });
 });
 
@@ -126,9 +146,11 @@ describe("Messaging", function () {
 
     // send message from address1 to nft inbox of addres2
     await expect(
-      messaging.connect(addr1).send(addr2.address, "Hey what's up!", "nft")
+      messaging
+        .connect(addr1)
+        .send(addr2.address, "Hey what's up!", "nft", true)
     )
       .to.emit(messaging, "Send")
-      .withArgs(addr1.address, addr2.address, "Hey what's up!", "nft");
+      .withArgs(addr1.address, addr2.address, "Hey what's up!", "nft", true);
   });
 });

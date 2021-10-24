@@ -20,6 +20,13 @@ async function main() {
   await messaging.deployed();
 
   console.log("Messaging deployed to:", messaging.address);
+
+  // const TestNft = await ethers.getContractFactory("TestNft");
+  // const testNft = await TestNft.deploy();
+
+  // await testNft.deployed();
+
+  // console.log("TestNft deployed to:", testNft.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

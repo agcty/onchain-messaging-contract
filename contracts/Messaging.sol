@@ -10,6 +10,7 @@ contract Messaging {
     // should always be encrypted by caller
     string content;
     string inboxName;
+    bool encrypted;
   }
 
   struct Inbox {
@@ -25,22 +26,30 @@ contract Messaging {
   }
 
   event Send(
-    address indexed _from,
-    address indexed _to,
-    string indexed content,
-    string inboxName
+    address indexed sender,
+    address indexed receiver,
+    string content,
+    string inboxName,
+    bool encrypted
   );
 
   event InboxAdded(
     address indexed owner,
     string indexed name,
-    string indexed description,
+    string description,
     Condition condition
   );
+
+  constructor() public {}
 
   // flat mapping for inboxes and messages, easier than a super nested mapping
   mapping(address => mapping(address => Message[])) public messages;
   mapping(address => mapping(string => Inbox)) public inboxes;
+  mapping(address => string) public publicKeys;
+
+  function addPublicKey(string memory publicKey) public {
+    publicKeys[msg.sender] = publicKey;
+  }
 
   function addInbox(
     string calldata name,
@@ -67,8 +76,14 @@ contract Messaging {
   function send(
     address receiver,
     string calldata content,
-    string calldata inboxName
+    string calldata inboxName,
+    bool encrypted
   ) public {
+    require(
+      compareStrings(publicKeys[receiver], "") == false,
+      "Receiver has no public key"
+    );
+
     // be extra explicit for readability
     if (compareStrings(inboxName, "default") == false) {
       // if inbox is different than default, ensure the inbox exists by checking its name
@@ -91,10 +106,16 @@ contract Messaging {
       // create composable conditions: 1 NFT of CryptoKitties && 1 NFT of Punks || 10 AAVE Tokens ;)
     }
 
-    Message memory message = Message(receiver, msg.sender, content, inboxName);
+    Message memory message = Message(
+      receiver,
+      msg.sender,
+      content,
+      inboxName,
+      encrypted
+    );
     messages[receiver][msg.sender].push(message);
 
     // emit event for graph
-    emit Send(msg.sender, receiver, content, inboxName);
+    emit Send(msg.sender, receiver, content, inboxName, encrypted);
   }
 }

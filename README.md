@@ -32,13 +32,13 @@ To try out Etherscan verification, you first need to deploy a contract to an Eth
 In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
 
 ```shell
-hardhat run --network local scripts/deploy.ts
+hardhat run --network localhost scripts/deploy.ts
 ```
 
 Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
 
 ```shell
-npx hardhat verify --network local DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+npx hardhat verify --network rinkeby 0x2C39bED2071F3743eEb7b7C7F1b5103CE7de939D
 ```
 
 # Performance optimizations
