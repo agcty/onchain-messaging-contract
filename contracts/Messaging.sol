@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -33,9 +33,11 @@ contract Messaging {
     bool encrypted
   );
 
+  event KeyAdded(address indexed sender, string key);
+
   event InboxAdded(
     address indexed owner,
-    string indexed name,
+    string name,
     string description,
     Condition condition
   );
@@ -49,6 +51,8 @@ contract Messaging {
 
   function addPublicKey(string memory publicKey) public {
     publicKeys[msg.sender] = publicKey;
+
+    emit KeyAdded(msg.sender, publicKey);
   }
 
   function addInbox(
@@ -79,15 +83,22 @@ contract Messaging {
     string calldata inboxName,
     bool encrypted
   ) public {
-    require(
-      compareStrings(publicKeys[receiver], "") == false,
-      "Receiver has no public key"
-    );
+    // if the message is encrypted, check if the sender has a public key
+    if (encrypted) {
+      require(
+        compareStrings(publicKeys[receiver], "") == false,
+        "Receiver has no public key"
+      );
+    } else {
+      require(
+        compareStrings(publicKeys[receiver], "") == true,
+        "Sender has public key, MUST encrypt!"
+      );
+    }
 
     // be extra explicit for readability
     if (compareStrings(inboxName, "default") == false) {
       // if inbox is different than default, ensure the inbox exists by checking its name
-
       bool inboxExists = inboxes[receiver][inboxName].exists;
       Condition memory condition = inboxes[receiver][inboxName].condition;
 
